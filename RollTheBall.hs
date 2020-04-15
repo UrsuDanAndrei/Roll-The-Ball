@@ -153,19 +153,113 @@ moveCell pos@(i, j) dir lvl@(Level arr)
         connection horPipe botLeft = False (═╚)
 -}
 
--- !!! si se aplica de sus in jos
-
-connection :: Cell -> Cell -> Bool
-connection (Cell c1) (Cell c2) = undefined
-{-
-    case (c1, c2) of
-    (horPipe, horPipe) -> True
-    (horPipe, botRight) -> True
-    (horPipe, topRight) -> True
-    (horPipe, startLeft) -> True
-    (horPipe, winLeft) -> True
-    -}
-
+connection :: Cell -> Cell -> Directions -> Bool 
+connection (Cell c1) (Cell c2) dir
+    | c1 == horPipe && c2 == horPipe && dir == East = True
+    | c1 == horPipe && c2 == botRight && dir == East = True
+    | c1 == horPipe && c2 == topRight && dir == East = True
+    | c1 == horPipe && c2 == startLeft && dir == East = True
+    | c1 == horPipe && c2 == winLeft && dir == East = True
+    ------------------------------------------------------
+    | c1 == horPipe && c2 == horPipe && dir == West = True
+    | c1 == horPipe && c2 == botLeft && dir == West = True
+    | c1 == horPipe && c2 == topLeft && dir == West = True
+    | c1 == horPipe && c2 == startRight && dir == West = True
+    | c1 == horPipe && c2 == winRight && dir == West = True
+    | c1 == verPipe && c2 == verPipe && dir == North = True
+    | c1 == verPipe && c2 == topLeft && dir == North = True
+    | c1 == verPipe && c2 == topRight && dir == North = True
+    | c1 == verPipe && c2 == startDown && dir == North = True
+    | c1 == verPipe && c2 == winDown && dir == North = True
+    ----------------------------------------------------------
+    | c1 == verPipe && c2 == verPipe && dir == South = True
+    | c1 == verPipe && c2 == botLeft && dir == South = True
+    | c1 == verPipe && c2 == botRight && dir == South = True
+    | c1 == verPipe && c2 == startUp && dir == South = True
+    | c1 == verPipe && c2 == winUp && dir == South = True
+    | c1 == topLeft && c2 == horPipe && dir == East = True
+    | c1 == topLeft && c2 == botRight && dir == East = True
+    | c1 == topLeft && c2 == topRight && dir == East = True
+    | c1 == topLeft && c2 == startLeft && dir == East = True
+    | c1 == topLeft && c2 == winLeft && dir == East = True
+    ---------------------------------------------------------
+    | c1 == topLeft && c2 == verPipe && dir == South = True
+    | c1 == topLeft && c2 == botLeft && dir == South = True
+    | c1 == topLeft && c2 == botRight && dir == South = True
+    | c1 == topLeft && c2 == startUp && dir == South = True
+    | c1 == topLeft && c2 == winUp && dir == South = True
+    | c1 == botLeft && c2 == horPipe && dir == East = True
+    | c1 == botLeft && c2 == botRight && dir == East = True
+    | c1 == botLeft && c2 == topRight && dir == East = True
+    | c1 == botLeft && c2 == startLeft && dir == East = True
+    | c1 == botLeft && c2 == winLeft && dir == East = True
+    -------------------------------------------------------------
+    | c1 == botLeft && c2 == horPipe && dir == North = True
+    | c1 == botLeft && c2 == topLeft && dir == North = True
+    | c1 == botLeft && c2 == topRight && dir == North = True
+    | c1 == botLeft && c2 == startDown && dir == North = True
+    | c1 == botLeft && c2 == winDown && dir == North = True
+    | c1 == botRight && c2 == horPipe && dir == West = True
+    | c1 == botRight && c2 == topLeft && dir == West = True
+    | c1 == botRight && c2 == botLeft && dir == West = True
+    | c1 == botRight && c2 == startRight && dir == West = True
+    | c1 == botRight && c2 == winRight && dir == West = True
+    ------------------------------------------------------------------
+    | c1 == botRight && c2 == verPipe && dir == North = True
+    | c1 == botRight && c2 == topLeft && dir == North = True
+    | c1 == botRight && c2 == topRight && dir == North = True
+    | c1 == botRight && c2 == startDown && dir == North = True
+    | c1 == botRight && c2 == winDown && dir == North = True
+    | c1 == topRight && c2 == horPipe && dir == West = True
+    | c1 == topRight && c2 == topLeft && dir == West = True
+    | c1 == topRight && c2 == botLeft && dir == West = True
+    | c1 == topRight && c2 == startRight && dir == West = True
+    | c1 == topRight && c2 == winRight && dir == West = True
+    ------------------------------------------------------------------
+    | c1 == topRight && c2 == verPipe && dir == South = True
+    | c1 == topRight && c2 == botLeft && dir == South = True
+    | c1 == topRight && c2 == botRight && dir == South = True
+    | c1 == topRight && c2 == startUp && dir == South = True
+    | c1 == topRight && c2 == winUp && dir == South = True
+    | c1 == startUp && c2 == verPipe && dir == North = True
+    | c1 == startUp && c2 == topLeft && dir == North = True
+    | c1 == startUp && c2 == topRight && dir == North = True
+    | c1 == startUp && c2 == winDown && dir == North = True
+    -----------------------------------------------------------------------
+    | c1 == startDown && c2 == verPipe && dir == South = True
+    | c1 == startDown && c2 == botLeft && dir == South = True
+    | c1 == startDown && c2 == botRight && dir == South = True
+    | c1 == startDown && c2 == winUp && dir == South = True
+    ----------------------------------------------------------------------
+    | c1 == startLeft && c2 == horPipe && dir == West = True
+    | c1 == startLeft && c2 == topLeft && dir == West = True
+    | c1 == startLeft && c2 == botLeft && dir == West = True
+    | c1 == startLeft && c2 == winRight && dir == West = True
+    -----------------------------------------------------------------------
+    | c1 == startRight && c2 == horPipe && dir == East = True
+    | c1 == startRight && c2 == botRight && dir == East = True
+    | c1 == startRight && c2 == topRight && dir == East = True
+    | c1 == startRight && c2 == winLeft && dir == East = True
+    | c1 == winUp && c2 == verPipe && dir == North = True
+    | c1 == winUp && c2 == topLeft && dir == North = True
+    | c1 == winUp && c2 == topRight && dir == North = True
+    | c1 == winUp && c2 == startDown && dir == North = True
+    -----------------------------------------------------------------------
+    | c1 == winDown && c2 == verPipe && dir == South = True
+    | c1 == winDown && c2 == botLeft && dir == South = True
+    | c1 == winDown && c2 == botRight && dir == South = True
+    | c1 == winDown && c2 == startUp && dir == South = True
+    ----------------------------------------------------------------------
+    | c1 == winLeft && c2 == horPipe && dir == West = True
+    | c1 == winLeft && c2 == topLeft && dir == West = True
+    | c1 == winLeft && c2 == botLeft && dir == West = True
+    | c1 == winLeft && c2 == startRight && dir == West = True
+    -----------------------------------------------------------------------
+    | c1 == winRight && c2 == horPipe && dir == East = True
+    | c1 == winRight && c2 == botRight && dir == East = True
+    | c1 == winRight && c2 == topRight && dir == East = True
+    | c1 == winRight && c2 == startLeft && dir == East = True
+    | otherwise = False
 {-
     *** TODO ***
 

@@ -6,6 +6,8 @@ module RollTheBall where
 import Pipes
 import ProblemState
 
+import Data.Array as A
+
 {-
     Direcțiile în care se poate mișca o piesa pe tablă
 -}
@@ -23,12 +25,24 @@ type Position = (Int, Int)
 {-
     Tip de date pentru reprezentarea celulelor tablei de joc
 -}
-data Cell = Cell --TODO
+{-
+data Cell = Cell
+            { getPos :: Position
+            , getC :: Char }
+-}
+
+data Cell = Cell
+            { getC :: Char } deriving(Eq, Ord)
+
 
 {-
     Tip de date pentru reprezentarea nivelului curent
 -}
-data Level = Level --TODO
+
+instance Show Cell where
+    show (Cell c) = show c
+
+data Level = Level (A.Array (Int, Int) Cell)
     deriving (Eq, Ord)
 {-
     *** Optional *** 
@@ -45,8 +59,12 @@ data Level = Level --TODO
     Atenție! Fiecare linie este urmată de \n (endl in Pipes).
 -}
 
-instance Show Level 
-    where show = undefined
+instance Show Level where
+    show (Level arr) = [if j == m+1 then '\n' else getC $ arr A.! (i, j) | i <- [0..n], j <- [0..m+1]] 
+                    where
+                        lrc = snd . A.bounds $ arr
+                        n = fst lrc
+                        m = snd lrc 
 
 {-
     *** TODO ***
@@ -56,13 +74,15 @@ instance Show Level
 -}
 
 emptyLevel :: Position -> Level
-emptyLevel = undefined
+emptyLevel pos = Level (A.array ((0, 0), pos) [((i, j), Cell emptySpace) | i <- [0..(fst pos)], j <- [0..(snd pos)]])
+
+-- Level [(Cell emptySpace) | x <- [0..(snd pos)]]
 
 {-
     *** TODO ***
 
     Adaugă o celulă de tip Pipe în nivelul curent.
-    Parametrul char descrie tipul de tile adăugat: 
+    Parametrul char descrie tipul de tile adăugat:
         verPipe -> pipe vertical
         horPipe -> pipe orizontal
         topLeft, botLeft, topRight, botRight -> pipe de tip colt
@@ -72,9 +92,15 @@ emptyLevel = undefined
     celula, dacă aceasta este liberă (emptySpace).
 -}
 
+-- !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! nu verifica daca e libera
 addCell :: (Char, Position) -> Level -> Level
-addCell = undefined
+addCell (c, pos) (Level arr) = Level $ arr A.// [(pos, Cell c)]
 
+{-
+addCell (c, pos) lvl@(Level arr)
+    | (getC $ arr A.! pos) == emptySpace = Level $ arr A.// [(pos, Cell c)]
+    | otherwise = lvl
+-}
 
 {-
     *** TODO *** 
@@ -88,7 +114,9 @@ addCell = undefined
 -}
  
 createLevel :: Position -> [(Char, Position)] -> Level
-createLevel = undefined
+createLevel pos l = foldr addCell initLevel l
+                where
+                    initLevel = emptyLevel pos
 
 
 {-
@@ -101,9 +129,19 @@ createLevel = undefined
     Hint: Dacă nu se poate face mutarea puteți lăsa nivelul neschimbat.
 -}
 
+-- !!! poate iese de pe tabla
 moveCell :: Position -> Directions -> Level -> Level
-moveCell = undefined
-
+moveCell pos@(i, j) dir lvl@(Level arr)
+    | foldr (\c acc -> c == posChar || acc) False startWinCells = lvl 
+    | otherwise = case dir of
+                    North -> if isEmpty (i + 1, j) then addCell (emptySpace, pos) $ addCell (posChar, (i + 1, j)) lvl else lvl
+                    South -> if isEmpty (i - 1, j) then addCell (emptySpace, pos) $ addCell (posChar, (i - 1, j)) lvl else lvl
+                    West -> if isEmpty (i, j - 1) then addCell (emptySpace, pos) $ addCell (posChar, (i, j - 1)) lvl else lvl
+                    East -> if isEmpty (i, j + 1) then addCell (emptySpace, pos) $ addCell (posChar, (i, j + 1)) lvl else lvl
+    where
+        posChar = (getC $ arr A.! pos)
+        startWinCells = startCells ++ winningCells
+        isEmpty poss = (getC $ arr A.! poss) == emptySpace
 {-
     *** TODO ***
 
@@ -114,8 +152,19 @@ moveCell = undefined
     ex: connection botLeft horPipe = True (╚═)
         connection horPipe botLeft = False (═╚)
 -}
+
+-- !!! si se aplica de sus in jos
+
 connection :: Cell -> Cell -> Bool
-connection = undefined
+connection (Cell c1) (Cell c2) = undefined
+{-
+    case (c1, c2) of
+    (horPipe, horPipe) -> True
+    (horPipe, botRight) -> True
+    (horPipe, topRight) -> True
+    (horPipe, startLeft) -> True
+    (horPipe, winLeft) -> True
+    -}
 
 {-
     *** TODO ***

@@ -8,6 +8,7 @@ pereche cu indexul minim și indexul maxim.
 În cazul nostru un index va avea tipul (Int, Int)', iar coltul din dreapta
 jos va avea indexul (1, 1).
 --}
+
 import Data.Array as A
 
 arr::(A.Array (Int, Int) Int)

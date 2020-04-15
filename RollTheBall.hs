@@ -12,7 +12,7 @@ import Data.Array as A
     Direcțiile în care se poate mișca o piesa pe tablă
 -}
 
-data Directions = North | South | West | East
+data Directions = North | South | West | East | NoDir
     deriving (Show, Eq, Ord)
 
 {-
@@ -134,8 +134,8 @@ moveCell :: Position -> Directions -> Level -> Level
 moveCell pos@(i, j) dir lvl@(Level arr)
     | foldr (\c acc -> c == posChar || acc) False startWinCells = lvl 
     | otherwise = case dir of
-                    North -> if isEmpty (i + 1, j) then addCell (emptySpace, pos) $ addCell (posChar, (i + 1, j)) lvl else lvl
-                    South -> if isEmpty (i - 1, j) then addCell (emptySpace, pos) $ addCell (posChar, (i - 1, j)) lvl else lvl
+                    North -> if isEmpty (i - 1, j) then addCell (emptySpace, pos) $ addCell (posChar, (i - 1, j)) lvl else lvl
+                    South -> if isEmpty (i + 1, j) then addCell (emptySpace, pos) $ addCell (posChar, (i + 1, j)) lvl else lvl
                     West -> if isEmpty (i, j - 1) then addCell (emptySpace, pos) $ addCell (posChar, (i, j - 1)) lvl else lvl
                     East -> if isEmpty (i, j + 1) then addCell (emptySpace, pos) $ addCell (posChar, (i, j + 1)) lvl else lvl
     where
@@ -269,7 +269,27 @@ connection (Cell c1) (Cell c2) dir
     Este folosită în cadrul Interactive.
 -}
 wonLevel :: Level -> Bool
-wonLevel = undefined
+-- wonLevel = undefined
+wonLevel (Level arr) = pathEnd NoDir $ getStart arr (0, 0)
+                    where
+                        lrc = snd . A.bounds $ arr
+                        n = fst lrc
+                        m = snd lrc
+                        isStart (Cell x) = elem x startCells
+                        isWin (Cell x) = elem x winningCells
+                        localConnection pos1 pos2 dir = connection (arr A.! pos1) (arr A.! pos2) dir
+                        getStart arr2 pos@(i, j)
+                            | isStart $ arr2 A.! pos = (i, j)
+                            | j == m = getStart arr2 (i+1, 0)
+                            | otherwise = getStart arr (i, j+1)
+                        pathEnd notDir pos@(i, j)
+                            | isWin $ arr A.! pos = True
+                            | notDir /= North && i /= 0 && localConnection (i, j) (i-1, j) North = pathEnd South (i-1, j)
+                            | notDir /= South && i /= n && localConnection (i, j) (i+1, j) South = pathEnd North (i+1, j)
+                            | notDir /= West && j /= 0 && localConnection (i, j) (i, j-1) West = pathEnd East (i, j-1)
+                            | notDir /= East && j /= m && localConnection (i, j) (i, j+1) East = pathEnd West (i, j+1)
+                            | otherwise = False 
+
 
 instance ProblemState Level (Position, Directions) where
     successors = undefined

@@ -17,26 +17,34 @@ import ProblemState
     * copiii, ce vor desemna stările învecinate
 -}
 
-data Node s a = UndefinedNode
+data Node s a = Node s a (Node s a) Int [Node s a]
+    deriving (Eq, Show)
 
 {-
     *** TODO ***
     Gettere folosite pentru accesul la câmpurile nodului
 -}
+
+
+-- !!! paote introduci modulul RollTheBall aici si schimbi conditia de maybe in dir == NoDir 
 nodeState :: Node s a -> s
-nodeState = undefined
+nodeState (Node state _ _ _ _) = state
 
 nodeParent :: Node s a -> Maybe (Node s a)
-nodeParent = undefined
+nodeParent (Node _ _ dad d _)
+    | d == 0 = Nothing
+    | otherwise = Just dad
 
 nodeDepth :: Node s a -> Int
-nodeDepth = undefined
+nodeDepth (Node _ _ _ d _) = d
 
 nodeAction :: Node s a -> Maybe a
-nodeAction = undefined
+nodeAction (Node _ action _ d _)
+    | d == 0 = Nothing
+    | otherwise = Just action
 
 nodeChildren :: Node s a -> [Node s a]
-nodeChildren = undefined
+nodeChildren (Node _ _ _ _ chil) = chil
 
 {-
     *** TODO ***

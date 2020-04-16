@@ -148,6 +148,7 @@ moveCell pos@(i, j) dir lvl@(Level arr)
                     South -> if isEmpty (i + 1, j) then addCell (emptySpace, pos) $ addCell (posChar, (i + 1, j)) lvl else lvl
                     West -> if isEmpty (i, j - 1) then addCell (emptySpace, pos) $ addCell (posChar, (i, j - 1)) lvl else lvl
                     East -> if isEmpty (i, j + 1) then addCell (emptySpace, pos) $ addCell (posChar, (i, j + 1)) lvl else lvl
+                    NoDir -> lvl
     where
         lrc = snd . A.bounds $ arr
         n = fst lrc
@@ -301,10 +302,20 @@ wonLevel (Level arr) = pathEnd NoDir $ getStart arr (0, 0)
                             | notDir /= South && i /= n && localConnection (i, j) (i+1, j) South = pathEnd North (i+1, j)
                             | notDir /= West && j /= 0 && localConnection (i, j) (i, j-1) West = pathEnd East (i, j-1)
                             | notDir /= East && j /= m && localConnection (i, j) (i, j+1) East = pathEnd West (i, j+1)
-                            | otherwise = False 
-
+                            | otherwise = False
 
 instance ProblemState Level (Position, Directions) where
-    successors = undefined
-    isGoal = undefined
-    reverseAction = undefined
+    successors lvl@(Level arr) = filter ((/= lvl) . snd) allStates
+                                where
+                                    lrc = snd . A.bounds $ arr
+                                    n = fst lrc
+                                    m = snd lrc
+                                    allStates = [(((i, j), dir), moveCell (i, j) dir lvl) | i <- [0..n], j <- [0..m], dir <- [North, South, West, East]]
+
+    isGoal = wonLevel
+
+    reverseAction (((i, j), dir), lvl)
+        | dir == North = (((i-1, j), South), moveCell (i-1, j) South lvl)
+        | dir == South = (((i+1, j), North), moveCell (i+1, j) North lvl)
+        | dir == East = (((i, j+1), West), moveCell (i, j+1) West lvl)
+        | dir == West = (((i, j-1), East), moveCell (i, j-1) East lvl)

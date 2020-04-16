@@ -60,7 +60,7 @@ data Level = Level (A.Array (Int, Int) Cell)
 -}
 
 instance Show Level where
-    show (Level arr) = [if j == m+1 then '\n' else getC $ arr A.! (i, j) | i <- [0..n], j <- [0..m+1]] 
+    show (Level arr) = '\n':[if j == m+1 then '\n' else getC $ arr A.! (i, j) | i <- [0..n], j <- [0..m+1]] 
                     where
                         lrc = snd . A.bounds $ arr
                         n = fst lrc
@@ -94,7 +94,13 @@ emptyLevel pos = Level (A.array ((0, 0), pos) [((i, j), Cell emptySpace) | i <- 
 
 -- !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! nu verifica daca e libera
 addCell :: (Char, Position) -> Level -> Level
-addCell (c, pos) (Level arr) = Level $ arr A.// [(pos, Cell c)]
+addCell (c, pos@(i, j)) lvl@(Level arr)
+    | (i >= 0 && i <= n && j >= 0 && j <= m) = Level $ arr A.// [(pos, Cell c)]
+    | otherwise = lvl
+    where
+        lrc = snd . A.bounds $ arr
+        n = fst lrc
+        m = snd lrc
 
 {-
 addCell (c, pos) lvl@(Level arr)
@@ -132,6 +138,10 @@ createLevel pos l = foldr addCell initLevel l
 -- !!! poate iese de pe tabla
 moveCell :: Position -> Directions -> Level -> Level
 moveCell pos@(i, j) dir lvl@(Level arr)
+    | dir == North && i == 0 = lvl
+    | dir == South && i == n = lvl
+    | dir == East && j == m = lvl
+    | dir == West && j == 0 = lvl
     | foldr (\c acc -> c == posChar || acc) False startWinCells = lvl 
     | otherwise = case dir of
                     North -> if isEmpty (i - 1, j) then addCell (emptySpace, pos) $ addCell (posChar, (i - 1, j)) lvl else lvl
@@ -139,6 +149,9 @@ moveCell pos@(i, j) dir lvl@(Level arr)
                     West -> if isEmpty (i, j - 1) then addCell (emptySpace, pos) $ addCell (posChar, (i, j - 1)) lvl else lvl
                     East -> if isEmpty (i, j + 1) then addCell (emptySpace, pos) $ addCell (posChar, (i, j + 1)) lvl else lvl
     where
+        lrc = snd . A.bounds $ arr
+        n = fst lrc
+        m = snd lrc
         posChar = (getC $ arr A.! pos)
         startWinCells = startCells ++ winningCells
         isEmpty poss = (getC $ arr A.! poss) == emptySpace

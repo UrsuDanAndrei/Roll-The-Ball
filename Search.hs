@@ -4,6 +4,7 @@
 module Search where
 
 import ProblemState
+
 {-
     *** TODO ***
 
@@ -17,7 +18,7 @@ import ProblemState
     * copiii, ce vor desemna stările învecinate
 -}
 
-data Node s a = Node s a (Node s a) Int [Node s a]
+data Node s a = Node s (Maybe a) (Maybe (Node s a)) Int [Node s a]
     deriving (Eq, Show)
 
 {-
@@ -31,17 +32,19 @@ nodeState :: Node s a -> s
 nodeState (Node state _ _ _ _) = state
 
 nodeParent :: Node s a -> Maybe (Node s a)
-nodeParent (Node _ _ dad d _)
-    | d == 0 = Nothing
+nodeParent (Node _ _ dad _ _) = dad
+ {- | d == 0 = Nothing
     | otherwise = Just dad
+    -}
 
 nodeDepth :: Node s a -> Int
 nodeDepth (Node _ _ _ d _) = d
 
 nodeAction :: Node s a -> Maybe a
-nodeAction (Node _ action _ d _)
-    | d == 0 = Nothing
+nodeAction (Node _ action _ _ _) = action
+ {- | d == 0 = Nothing
     | otherwise = Just action
+    -}
 
 nodeChildren :: Node s a -> [Node s a]
 nodeChildren (Node _ _ _ _ chil) = chil
@@ -54,8 +57,19 @@ nodeChildren (Node _ _ _ _ chil) = chil
     având drept copii nodurile succesorilor stării curente.
 -}
 
+-- !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1111 s-ar putea ca getChildren sa trebuiasca plasat
+-- inafara lui createStateSpace            
+
 createStateSpace :: (ProblemState s a, Eq s) => s -> Node s a
-createStateSpace = undefined
+createStateSpace state = initialNode
+    where
+        initialNode = Node state Nothing Nothing 0 (createChildren initialNode)
+        createChildren currNode = map childFromActionState (successors (nodeState currNode))
+            where
+                d = nodeDepth currNode
+                childFromActionState (nextAction, nextState) = nextChild
+                    where
+                        nextChild = Node nextState (Just nextAction) (Just currNode) (d+1) (createChildren nextChild)
 
 {-
     *** TODO ***
@@ -66,8 +80,16 @@ createStateSpace = undefined
 
 -}
 
-bfs :: Ord s => Node s a -> [([Node s a], [Node s a])]
-bfs = undefined
+bfsHelper :: (Eq a, Ord s) => [Node s a] -> [Node s a] -> [([Node s a], [Node s a])]
+bfsHelper inQueue allNodes = (nextInQueue, allNodes ++ nextInQueue):(bfsHelper ((tail inQueue) ++ nextInQueue) (allNodes ++ nextInQueue))
+    where
+        node = head inQueue
+        nextInQueue = filter (not . (\child -> elem child allNodes)) (nodeChildren node)
+
+bfs :: (Eq a, Ord s) => Node s a -> [([Node s a], [Node s a])]
+bfs node = ([node], [node]):(bfsHelper [node] [node])
+
+
 
 
 

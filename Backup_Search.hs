@@ -19,12 +19,10 @@ import ProblemState
 -}
 
 data Node s a = Node s (Maybe a) (Maybe (Node s a)) Int [Node s a]
-    deriving (Show, Eq)
--- !!!!!!!!!!!!!!!!!!!!!!!!!!!!!11111 daca pun asta iau 57 de puncte aparent o folosesc undeva in bfs
-{-
+    deriving (Show)
+
 instance (Eq s) => Eq (Node s a) where
     (==) (Node state1 _ _ _ _) (Node state2 _ _ _ _) = state1 == state2
-    -}
 
 {-
     *** TODO ***
@@ -100,13 +98,14 @@ bfs node = ([node], [node]):(bfsHelper [node] [node])
     Primește starea inițială și finală și întoarce o pereche de noduri, reprezentând
     intersecția dintre cele două frontiere.
 -}
+
 {-
 bidirBFSHelper :: Ord s => Node s a -> Node s a -> (Node s a, Node s a)
 bidirBFSHelper = undefined
 -}
 
 bidirBFS :: Ord s => Node s a -> Node s a -> (Node s a, Node s a)
-bidirBFS start finish = undefined
+bidirBFS = undefined
 {- filter (not . ff) zipped
     where
         zipped = zip bfsStart bfsFinish

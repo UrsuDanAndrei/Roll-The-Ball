@@ -81,7 +81,7 @@ createStateSpace state = initialNode
 -}
 
 bfsHelper :: (Eq a, Ord s) => [Node s a] -> [Node s a] -> [([Node s a], [Node s a])]
-bfsHelper inQueue allNodes = (nextInQueue, allNodes ++ nextInQueue):(bfsHelper ((tail inQueue) ++ nextInQueue) (allNodes ++ nextInQueue))
+bfsHelper inQueue allNodes = (nextInQueue, (tail inQueue) ++ nextInQueue):(bfsHelper ((tail inQueue) ++ nextInQueue) (allNodes ++ nextInQueue))
     where
         node = head inQueue
         nextInQueue = filter (not . (\child -> elem child allNodes)) (nodeChildren node)

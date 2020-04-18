@@ -107,15 +107,17 @@ bidirBFSHelper = undefined
 
 bidirBFS :: Ord s => Node s a -> Node s a -> (Node s a, Node s a)
 bidirBFS start finish = undefined
-{- filter (not . ff) zipped
+
+{-
     where
-        zipped = zip bfsStart bfsFinish
-        bfsStart = bfs start
-        bfsFinish = bfs finish
-        contact ((lastS, frontS), (lastF, frontF)) = foldr (\x acc -> dd x frontF || acc) False lastS
-        dd xx front = (elem xx front) || foldr (\y acc -> elem y front || acc) False (nodeChildren xx)
+        union = head $ filter contact zipped
+        zipped = zip (bfs start) (bfs finish)
+        contact ((lastS, frontS), (lastF, frontF)) = filter (\x -> (isInFront x frontF) || (childrenAreInFront x frontF)) False lastS
+        isInFront y front = foldr (\z acc -> ((nodeState y) == (nodeState z)) || acc) False front
+        childrenAreInFront y front = foldr (\z acc -> (isInFront z front) || acc) False (nodeChildren y)
+-}
 
-
+{-
         startRecent = map fst bfsStart
         finishRecent = map fst bfsFinish
         startFront = map snd bfsStart

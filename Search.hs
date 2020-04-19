@@ -100,22 +100,38 @@ bfs node = ([node], [node]):(bfsHelper [node] [node])
     Primește starea inițială și finală și întoarce o pereche de noduri, reprezentând
     intersecția dintre cele două frontiere.
 -}
-{-
-bidirBFSHelper :: Ord s => Node s a -> Node s a -> (Node s a, Node s a)
-bidirBFSHelper = undefined
--}
 
-bidirBFS :: Ord s => Node s a -> Node s a -> (Node s a, Node s a)
-bidirBFS start finish = undefined
+contact ((lastS, _), (_, frontF)) = foldr (\x acc -> (isInFront x frontF) || (childrenAreInFront x frontF) || acc) False lastS
+isInFront y front = foldr (\z acc -> ((nodeState y) == (nodeState z)) || acc) False front
+childrenAreInFront y front = foldr (\z acc -> (isInFront z front) || acc) False (nodeChildren y)
 
-{-
+
+bidirBFS :: (Eq a, Ord s) => Node s a -> Node s a -> (Node s a, Node s a)
+bidirBFS start finish = (first1, second1)
     where
+        first1 = head $ findFirst (fst $ fst union) (snd $ snd union)
+        second1 = head $ (findSecond first1 (snd $ snd union)) ++ (concat (map (\x -> findSecond x (snd $ snd union)) (nodeChildren first1)))
+
+        findFirst lastS frontF = filter (\x -> (isInFront x frontF) || (childrenAreInFront x frontF)) lastS
+        findSecond node frontF = filter (\x -> (nodeState node) == (nodeState x)) frontF
+
         union = head $ filter contact zipped
         zipped = zip (bfs start) (bfs finish)
-        contact ((lastS, frontS), (lastF, frontF)) = filter (\x -> (isInFront x frontF) || (childrenAreInFront x frontF)) False lastS
+        {-contact ((lastS, _), (_, frontF)) = foldr (\x acc -> (isInFront x frontF) || (childrenAreInFront x frontF) || acc) False lastS
+        isInFront y front = foldr (\z acc -> ((nodeState y) == (nodeState z)) || acc) False front
+        childrenAreInFront y front = foldr (\z acc -> (isInFront z front) || acc) False (nodeChildren y)-}
+
+     {-   first1 = head $ findFirst (fst $ fst union) (snd $ snd union)
+        second1 = findSecond first1 (snd $ snd union)
+        findFirst lastS frontF = filter (\x -> isInFront x frontF) lastS
+        findSecond node frontF = filter (\x -> (nodeState node) == (nodeState x)) frontF
+
+        union = head $ filter contact zipped
+        zipped = zip (bfs start) (bfs finish)
+        contact ((lastS, frontS), (lastF, frontF)) = foldr (\x acc -> (isInFront x frontF) || (childrenAreInFront x frontF) || acc) False lastS
         isInFront y front = foldr (\z acc -> ((nodeState y) == (nodeState z)) || acc) False front
         childrenAreInFront y front = foldr (\z acc -> (isInFront z front) || acc) False (nodeChildren y)
--}
+        -}
 
 {-
         startRecent = map fst bfsStart

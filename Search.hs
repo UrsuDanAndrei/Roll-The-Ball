@@ -4,6 +4,7 @@
 module Search where
 
 import ProblemState
+import Data.Maybe as M
 
 {-
     *** TODO ***
@@ -106,22 +107,22 @@ isInFront y front = foldr (\z acc -> ((nodeState y) == (nodeState z)) || acc) Fa
 childrenAreInFront y front = foldr (\z acc -> (isInFront z front) || acc) False (nodeChildren y)-}
 
 bidirBFS :: (Eq a, Ord s) => Node s a -> Node s a -> (Node s a, Node s a)
-bidirBFS start finish = (first1, second1)
+bidirBFS start finish = (first, second)
     where
-        first1 = head $ findFirst (fst $ fst union) (snd $ snd union)
-        second1 = head $ (findSecond first1 (snd $ snd union))
-
-        findFirst lastS frontF = filter (\x -> (isInFront x frontF)) (lastS ++ (getAllChindren lastS))
-        findSecond node frontF = filter (\x -> (nodeState node) == (nodeState x)) frontF
-        getAllChindren nodes = concat $ map (\x -> (nodeChildren x)) nodes 
-
-
-        union = head $ filter contact zipped
-        zipped = zip (bfs start) (bfs finish)
-
         contact ((lastS, _), (_, frontF)) = foldr (\x acc -> (isInFront x frontF) || (childrenAreInFront x frontF) || acc) False lastS
         isInFront y front = foldr (\z acc -> ((nodeState y) == (nodeState z)) || acc) False front
         childrenAreInFront y front = foldr (\z acc -> (isInFront z front) || acc) False (nodeChildren y)
+
+        intersection = head $ filter contact zipped
+        zipped = zip (bfs start) (bfs finish)
+
+        findFirst lastS frontF = filter (\x -> (isInFront x frontF)) (lastS ++ (getAllChindren lastS))
+        findSecond node frontF = filter (\x -> (nodeState node) == (nodeState x)) frontF
+        getAllChindren nodes = concat $ map (\x -> (nodeChildren x)) nodes
+
+        first = head $ findFirst (fst $ fst intersection) (snd $ snd intersection)
+        second = head $ (findSecond first (snd $ snd intersection))
+
 
      {-   
   first1 = head $ findFirst (fst $ fst union) (snd $ snd union)
@@ -158,11 +159,15 @@ bidirBFS start finish = (first1, second1)
 
 -}
 
-extractPath :: Node s a -> [(Maybe a, s)]
-extractPath node = undefined
-   {- | (nodeParent node) == Nothing
-    |  -}
-
+extractPath :: (Eq a, Eq s) => Node s a -> [(Maybe a, s)]
+extractPath lastNode = reverse $ map (\(action, node) -> (action, nodeState $ M.fromJust node)) actionNodeMaybe
+    where
+        actionNodeMaybe = takeWhile (\x -> snd x /= Nothing) $ iterate generateNext (nodeAction lastNode, Just lastNode)
+        generateNext (_, node)
+            | dad == Nothing = (Nothing, Nothing)
+            | otherwise = (nodeAction $ M.fromJust dad, dad)
+            where
+                dad = nodeParent $ M.fromJust node
 
 
 {-

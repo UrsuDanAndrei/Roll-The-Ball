@@ -31,8 +31,7 @@ data Cell = Cell
             , getC :: Char }
 -}
 
-data Cell = Cell
-            { getC :: Char } deriving(Eq, Ord)
+data Cell = Cell { getC :: Char } deriving(Eq, Ord)
 
 
 {-
@@ -61,10 +60,10 @@ data Level = Level (A.Array (Int, Int) Cell)
 
 instance Show Level where
     show (Level arr) = '\n':[if j == m+1 then '\n' else getC $ arr A.! (i, j) | i <- [0..n], j <- [0..m+1]] 
-                    where
-                        lrc = snd . A.bounds $ arr
-                        n = fst lrc
-                        m = snd lrc 
+        where
+            lrc = snd . A.bounds $ arr
+            n = fst lrc
+            m = snd lrc 
 
 {-
     *** TODO ***
@@ -121,8 +120,8 @@ addCell (c, pos) lvl@(Level arr)
  
 createLevel :: Position -> [(Char, Position)] -> Level
 createLevel pos l = foldr addCell initLevel l
-                where
-                    initLevel = emptyLevel pos
+    where
+        initLevel = emptyLevel pos
 
 
 {-
@@ -285,32 +284,32 @@ connection (Cell c1) (Cell c2) dir
 wonLevel :: Level -> Bool
 -- wonLevel = undefined
 wonLevel (Level arr) = pathEnd NoDir $ getStart arr (0, 0)
-                    where
-                        lrc = snd . A.bounds $ arr
-                        n = fst lrc
-                        m = snd lrc
-                        isStart (Cell x) = elem x startCells
-                        isWin (Cell x) = elem x winningCells
-                        localConnection pos1 pos2 dir = connection (arr A.! pos1) (arr A.! pos2) dir
-                        getStart arr2 pos@(i, j)
-                            | isStart $ arr2 A.! pos = (i, j)
-                            | j == m = getStart arr2 (i+1, 0)
-                            | otherwise = getStart arr (i, j+1)
-                        pathEnd notDir pos@(i, j)
-                            | isWin $ arr A.! pos = True
-                            | notDir /= North && i /= 0 && localConnection (i, j) (i-1, j) North = pathEnd South (i-1, j)
-                            | notDir /= South && i /= n && localConnection (i, j) (i+1, j) South = pathEnd North (i+1, j)
-                            | notDir /= West && j /= 0 && localConnection (i, j) (i, j-1) West = pathEnd East (i, j-1)
-                            | notDir /= East && j /= m && localConnection (i, j) (i, j+1) East = pathEnd West (i, j+1)
-                            | otherwise = False
+    where
+        lrc = snd . A.bounds $ arr
+        n = fst lrc
+        m = snd lrc
+        isStart (Cell x) = elem x startCells
+        isWin (Cell x) = elem x winningCells
+        localConnection pos1 pos2 dir = connection (arr A.! pos1) (arr A.! pos2) dir
+        getStart arr2 pos@(i, j)
+            | isStart $ arr2 A.! pos = (i, j)
+            | j == m = getStart arr2 (i+1, 0)
+            | otherwise = getStart arr (i, j+1)
+        pathEnd notDir pos@(i, j)
+            | isWin $ arr A.! pos = True
+            | notDir /= North && i /= 0 && localConnection (i, j) (i-1, j) North = pathEnd South (i-1, j)
+            | notDir /= South && i /= n && localConnection (i, j) (i+1, j) South = pathEnd North (i+1, j)
+            | notDir /= West && j /= 0 && localConnection (i, j) (i, j-1) West = pathEnd East (i, j-1)
+            | notDir /= East && j /= m && localConnection (i, j) (i, j+1) East = pathEnd West (i, j+1)
+            | otherwise = False
 
 instance ProblemState Level (Position, Directions) where
     successors lvl@(Level arr) = filter ((/= lvl) . snd) allStates
-                                where
-                                    lrc = snd . A.bounds $ arr
-                                    n = fst lrc
-                                    m = snd lrc
-                                    allStates = [(((i, j), dir), moveCell (i, j) dir lvl) | i <- [0..n], j <- [0..m], dir <- [North, South, West, East]]
+        where
+            lrc = snd . A.bounds $ arr
+            n = fst lrc
+            m = snd lrc
+            allStates = [(((i, j), dir), moveCell (i, j) dir lvl) | i <- [0..n], j <- [0..m], dir <- [North, South, West, East]]
 
     isGoal = wonLevel
 

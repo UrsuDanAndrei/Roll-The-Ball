@@ -34,4 +34,3 @@ class ProblemState s a | s -> a where
     -}
 
     reverseAction :: (a, s) -> (a, s)
-

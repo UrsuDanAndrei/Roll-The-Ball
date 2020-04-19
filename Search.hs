@@ -158,6 +158,7 @@ bidirBFS start finish = (first, second)
     și se încheie în starea finală.
 
 -}
+-- !!!! curatenie prin cod
 
 extractPath :: (Eq a, Eq s) => Node s a -> [(Maybe a, s)]
 extractPath lastNode = reverse $ map (\(action, node) -> (action, nodeState $ M.fromJust node)) actionNodeMaybe
@@ -168,7 +169,6 @@ extractPath lastNode = reverse $ map (\(action, node) -> (action, nodeState $ M.
             | otherwise = (nodeAction $ M.fromJust dad, dad)
             where
                 dad = nodeParent $ M.fromJust node
-
 
 {-
     *** TODO ***
@@ -183,8 +183,15 @@ extractPath lastNode = reverse $ map (\(action, node) -> (action, nodeState $ M.
     și se încheie în starea finală.
 -}
 
-solve :: (ProblemState s a, Ord s)
+solve :: (ProblemState s a, Ord s, Eq a)
       => s          -- Starea inițială de la care se pornește
       -> s          -- Starea finală la care se ajunge
       -> [(Maybe a, s)]   -- Lista perechilor
-solve = undefined
+solve start finish = startPath ++ map maybeReverseAction (reverse $ tail finishPath)
+    where
+        connection = bidirBFS (createStateSpace start) (createStateSpace finish)
+        startPath = extractPath $ fst connection
+        finishPath = extractPath $ snd connection
+
+        toMaybe (action, state) = (Just action, state)
+        maybeReverseAction (action, state) = (toMaybe . reverseAction) (M.fromJust action, state)

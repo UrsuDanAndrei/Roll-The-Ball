@@ -1,6 +1,0 @@
-Salut,
-
-Nu imi este foarte clar ce se intelege prin "frontiera", eu ma gandisem ca reprezinta multimea nodurilor la care se poate ajunge din nodul sursa la un moment dat, dar faptul ca frontiera devine "goala" ma induce un pic in eroare. Ai putea te rog sa imi arati rezultatul functiei bfs pe urmatorul graf neorientat pornind din nodul 1?
-
-1: 1, 2, 3
-2: 
